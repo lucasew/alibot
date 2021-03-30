@@ -154,7 +154,7 @@ func handleUpdate(u tg.Update) {
             return
         }
         if fmt.Sprintf("%d", owner) != id {
-            msgActor<-tg.NewMessage(*owner, fmt.Sprintf(`Link removido da lista por @%s
+            msgActor<-tg.NewMessage(int64(*owner), fmt.Sprintf(`Link removido da lista por @%s
             LINK: https://a.aliexpress.com/%s
             READICIONAR: /add%s`, u.Message.From.UserName, id, id))
         }
@@ -163,13 +163,13 @@ func handleUpdate(u tg.Update) {
     }
     if strings.HasPrefix(cmd, "add") && len(cmd) >= 4 {
         id := strings.TrimPrefix(cmd, "add")
-        state.AddLink(int64(chat_id), id)
+        state.AddLink(chat_id, id)
         msgActor<-tg.NewMessage(int64(chat_id), fmt.Sprintf("Link readicionado. Remover /ok%s", id))
 
         return
     }
     if cmd == "next" {
-        id := state.GetFirstNotCompleted()
+        id := state.GetFirstNotCompleted(chat_id)
         if id == nil {
             sendError(errors.New("Nenhum link na fila"))
             return
@@ -186,7 +186,7 @@ func handleUpdate(u tg.Update) {
     if link == "" {
         msgActor<-tg.NewMessage(int64(u.Message.From.ID), "Se era pra ser um link ele não foi reconhecido")
     } else {
-        state.AddLink(int64(u.Message.From.ID), link)
+        state.AddLink(u.Message.From.ID, link)
         msgActor<-tg.NewMessage(int64(u.Message.From.ID), fmt.Sprintf("Link https://a.aliexpress.com/%s adicionado com sucesso.\nREMOVER: /ok%s", link, link))
         return
     }
@@ -220,7 +220,7 @@ type AppState struct {
 }
 
 type LinkMetadata struct {
-    Owner int64
+    Owner int
     IsEnabled bool
 }
 
@@ -267,7 +267,7 @@ func (a *AppState) Load() error {
     return json.NewDecoder(f).Decode(&a.data)
 }
 
-func (a *AppState) AddLink(from int64, ali_id string) {
+func (a *AppState) AddLink(from int, ali_id string) {
     a.Lock()
     defer a.Unlock()
     item, ok := a.data[ali_id]
@@ -295,18 +295,18 @@ func (a *AppState) CountLinks() int {
     return len(a.data)
 }
 
-func (a *AppState) GetFirstNotCompleted() *string {
+func (a *AppState) GetFirstNotCompleted(user int) *string {
     a.Lock()
     defer a.Unlock()
     for k, v := range a.data {
-        if v.IsEnabled == true {
+        if v.IsEnabled == true && v.Owner != user {
             return &k
         }
     }
     return nil
 }
 
-func (a *AppState) GetAliIDOwner(ali_id string) *int64 {
+func (a *AppState) GetAliIDOwner(ali_id string) *int {
     a.Lock()
     defer a.Unlock()
     item, ok := a.data[ali_id]
