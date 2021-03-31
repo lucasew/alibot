@@ -169,13 +169,15 @@ func handleUpdate(u tg.Update) {
         return
     }
     if cmd == "next" {
-        id := state.GetFirstNotCompleted(chat_id)
-        if id == nil {
+        notCompleted := state.GetNotCompleted(chat_id)
+        if len(notCompleted) == 0 {
             sendError(errors.New("Nenhum link na fila"))
             return
         }
-        msgActor<-tg.NewMessage(int64(chat_id), fmt.Sprintf(`Link: https://a.aliexpress.com/%s
-        CANCELAR: /ok%s`, *id, *id))
+        for k, v := range notCompleted {
+            notCompleted[k] = fmt.Sprintf("https://a.aliexpress.com/%s /ok%s", v, v)
+        }
+        msgActor<-tg.NewMessage(int64(chat_id), strings.Join(notCompleted, "\n"))
         return
     }
     if cmd == "flush" {
@@ -295,15 +297,16 @@ func (a *AppState) CountLinks() int {
     return len(a.data)
 }
 
-func (a *AppState) GetFirstNotCompleted(user int) *string {
+func (a *AppState) GetNotCompleted(user int) []string {
     a.Lock()
     defer a.Unlock()
+    ret := make([]string, 0, 3)
     for k, v := range a.data {
         if v.IsEnabled == true && v.Owner != user {
-            return &k
+            ret = append(ret, k)
         }
     }
-    return nil
+    return ret
 }
 
 func (a *AppState) GetAliIDOwner(ali_id string) *int {
