@@ -189,7 +189,7 @@ func handleUpdate(u tg.Update) {
             return
         }
         for k, v := range notCompleted {
-            notCompleted[k] = fmt.Sprintf("https://a.aliexpress.com/%s\nREMOVER DA LISTA: /ok%s", v, v)
+            notCompleted[k] = fmt.Sprintf("https://a.aliexpress.com/%s\nSe expirado ou já concedido: /ok%s", v, v)
         }
         msgActor<-tg.NewMessage(int64(chat_id), strings.Join(notCompleted, "\n"))
         return
@@ -200,7 +200,7 @@ func handleUpdate(u tg.Update) {
     }
     link := extractID(u.Message.Text)
     if link == "" {
-        msgActor<-tg.NewMessage(int64(u.Message.From.ID), "Se era pra ser um link ele não foi reconhecido")
+        msgActor<-tg.NewMessage(int64(u.Message.From.ID), "Se era pra ser um link, ou comando, ele não foi reconhecido")
     } else {
         state.AddLink(u.Message.From.ID, link)
         msgActor<-tg.NewMessage(int64(u.Message.From.ID), fmt.Sprintf("Link https://a.aliexpress.com/%s adicionado com sucesso.\nREMOVER: /ok%s", link, link))
