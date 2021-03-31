@@ -305,6 +305,9 @@ func (a *AppState) GetNotCompleted(user int) []string {
         if v.IsEnabled == true && v.Owner != user {
             ret = append(ret, k)
         }
+        if len(ret) >= 10 {
+            return ret
+        }
     }
     return ret
 }
