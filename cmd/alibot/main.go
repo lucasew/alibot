@@ -41,6 +41,20 @@ func handleSignals() {
     }
 }
 
+const help = `
+Esse bot tem como objetivo ajudar todos os que estão participando das pechinchas do aliexpress.
+- Você não pode impulsionar o próprio link
+- Você pode impulsionar até 3 links a cada 24h
+- Você precisa de n impulsos para conseguir o desconto do produto
+- Cada conta pode estar associada a só um celular e um só celular por conta
+Nisso o bot une o útil ao agradável
+- Use /next para visualizar os links das outras pessoas para você impulsionar. Dica: Para dispositivos secundários manda o que esse comando te entregar para o email da conta google esse celular secundário
+O comando vai te entregar uma lista de links, se o link expirou ou já foi concedido tem um comando depois do link, só clicar nele.
+Se alguém marcar seu link como expirado o bot te avisa e você pode readicionar pelo comando enviado.
+- Os outros vão acabar fazendo isso com seus links e todo mundo sai ganhando.
+- Eu quero um drone: https://a.aliexpress.com/_mOKDdtH
+`
+
 func init() {
     signal.Notify(signals, os.Interrupt, os.Kill)
     go handleSignals()
@@ -175,7 +189,7 @@ func handleUpdate(u tg.Update) {
             return
         }
         for k, v := range notCompleted {
-            notCompleted[k] = fmt.Sprintf("https://a.aliexpress.com/%s /ok%s", v, v)
+            notCompleted[k] = fmt.Sprintf("https://a.aliexpress.com/%s\nREMOVER DA LISTA: /ok%s", v, v)
         }
         msgActor<-tg.NewMessage(int64(chat_id), strings.Join(notCompleted, "\n"))
         return
@@ -192,11 +206,7 @@ func handleUpdate(u tg.Update) {
         msgActor<-tg.NewMessage(int64(u.Message.From.ID), fmt.Sprintf("Link https://a.aliexpress.com/%s adicionado com sucesso.\nREMOVER: /ok%s", link, link))
         return
     }
-    msgActor<-tg.NewMessage(int64(chat_id), `
-    Bem vindo ao bot de desconto do aliexpress
-    Para adicionar um link simplesmente encaminhe o mesmo, pode ser com o texto junto
-    Para ajudar os coleguinhas use /next
-    `)
+    msgActor<-tg.NewMessage(int64(chat_id), help)
 }
 
 func main() {
