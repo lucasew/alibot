@@ -46,13 +46,13 @@ Esse bot tem como objetivo ajudar todos os que estão participando das pechincha
 - Você não pode impulsionar o próprio link
 - Você pode impulsionar até 3 links a cada 24h
 - Você precisa de n impulsos para conseguir o desconto do produto
+- O jogo tá MUITO desbalanceado, o fácil tá muito fácil e o difícil tá muito difícil. Prefira itens fáceis ou n vai dar não.
 - Cada conta pode estar associada a só um celular e um só celular por conta
 Nisso o bot une o útil ao agradável
 - Use /next para visualizar os links das outras pessoas para você impulsionar. Dica: Para dispositivos secundários manda o que esse comando te entregar para o email da conta google esse celular secundário
 O comando vai te entregar uma lista de links, se o link expirou ou já foi concedido tem um comando depois do link, só clicar nele.
 Se alguém marcar seu link como expirado o bot te avisa e você pode readicionar pelo comando enviado.
 - Os outros vão acabar fazendo isso com seus links e todo mundo sai ganhando.
-- Eu quero um drone: https://a.aliexpress.com/_mOKDdtH
 `
 
 func init() {
