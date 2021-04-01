@@ -200,6 +200,9 @@ func handleUpdate(u tg.Update) {
         sendError(state.Flush())
         return
     }
+    if cmd == "len" {
+        msgActor<-tg.NewMessage(int64(chat_id), fmt.Sprintf("%d", state.CountLinks()))
+    }
     link := extractID(u.Message.Text)
     if link == "" {
         msgActor<-tg.NewMessage(int64(u.Message.From.ID), "Se era pra ser um link, ou comando, ele não foi reconhecido")
