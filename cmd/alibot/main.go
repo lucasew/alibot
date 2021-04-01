@@ -92,8 +92,10 @@ func flushActorHandler() {
     for {
         select {
         case <-ticker:
-            log.Printf("Running scheduled state flush...")
-            state.Flush()
+            if state.NeedFlush {
+                log.Printf("Running scheduled state flush...")
+                state.Flush()
+            }
         case <-bgContext.Done():
             return
         }
@@ -229,6 +231,7 @@ type AppState struct {
     filename string
     sync.Mutex
     data map[string]LinkMetadata
+    NeedFlush bool
 }
 
 type LinkMetadata struct {
@@ -240,6 +243,7 @@ func NewAppState(filename string) *AppState {
     return &AppState{
         filename: filename,
         data: map[string]LinkMetadata{},
+        NeedFlush: true,
     }
 }
 
@@ -256,12 +260,18 @@ func (a *AppState) Flush() error {
     if err != nil {
         return err
     }
-    return os.Rename(newFile, a.filename)
+    err = os.Rename(newFile, a.filename)
+    if err != nil {
+        return err
+    }
+    a.NeedFlush = false
+    return nil
 }
 
 func (a *AppState) Load() error {
     a.Lock()
     defer a.Unlock()
+    a.NeedFlush = false
     _, err := os.Stat(a.filename)
     if err != nil {
         f, err := os.Create(a.filename)
@@ -282,6 +292,7 @@ func (a *AppState) Load() error {
 func (a *AppState) AddLink(from int, ali_id string) {
     a.Lock()
     defer a.Unlock()
+    a.NeedFlush = true
     item, ok := a.data[ali_id]
     if !ok {
         a.data[ali_id] = LinkMetadata{
@@ -296,6 +307,7 @@ func (a *AppState) AddLink(from int, ali_id string) {
 func (a *AppState) DoneLink(ali_id string) {
     a.Lock()
     defer a.Unlock()
+    a.NeedFlush = true
     item, ok := a.data[ali_id]
     if ok {
         item.IsEnabled = false
