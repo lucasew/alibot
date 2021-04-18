@@ -53,6 +53,8 @@ Nisso o bot une o útil ao agradável
 O comando vai te entregar uma lista de links, se o link expirou ou já foi concedido tem um comando depois do link, só clicar nele.
 Se alguém marcar seu link como expirado o bot te avisa e você pode readicionar pelo comando enviado.
 - Os outros vão acabar fazendo isso com seus links e todo mundo sai ganhando.
+
+Mais informações: https://t.me/oppechincha
 `
 
 func init() {
